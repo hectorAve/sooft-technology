@@ -53,7 +53,7 @@ public class EmpresaController {
     @PostMapping()
     public ResponseEntity<EmpresaDTO> addEmpresa(@Valid @RequestBody EmpresaDTO empresaDTO) {
         try {
-            return new ResponseEntity<>(this.empresaService.addEmpresa(empresaDTO), HttpStatus.OK);
+            return new ResponseEntity<>(this.empresaService.addEmpresa(empresaDTO), HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
