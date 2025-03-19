@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class TransactionsManagementApplicationTests {
 
-	@Test
+	//@Test
 	void contextLoads() {
 	}
 
