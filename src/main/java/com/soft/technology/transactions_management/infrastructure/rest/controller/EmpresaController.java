@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,9 +25,11 @@ public class EmpresaController {
 
     @Operation(summary = "Busca las empresas que tuvieron una adhesión en el último mes.")
     @GetMapping(path = "/lastmonth")
-    public ResponseEntity<Iterable<EmpresaDTO>> getEmpresasByLastMonthsOfAdherence() {
+    public ResponseEntity<Iterable<EmpresaDTO>> getEmpresasByLastMonthsOfAdherence(@RequestParam(name = "page", defaultValue = "0") int page) {
         try {
-            Iterable<EmpresaDTO> response = this.empresaService.getEmpresasByLastMonthsOfAdherence();
+            Pageable pageable = PageRequest.of(page, 10);
+            Iterable<EmpresaDTO> response = this.empresaService.getEmpresasByLastMonthsOfAdherence(pageable);
+
             if (response == null || !response.iterator().hasNext()) {
                 return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
             }
@@ -37,9 +41,11 @@ public class EmpresaController {
 
     @Operation(summary = "Busca las empresas que tuvieron alguna transferencia en el último mes.")
     @GetMapping(path = "/transference/lastmonth")
-    public ResponseEntity<Iterable<EmpresaDTO>> getEmpresasWithTransferencesByLastMonths() {
+    public ResponseEntity<Iterable<EmpresaDTO>> getEmpresasWithTransferencesByLastMonths(@RequestParam(name = "page", defaultValue = "0") int page) {
         try {
-            Iterable<EmpresaDTO> response = this.empresaService.getEmpresasWithTransferencesByLastMonths();
+            Pageable pageable = PageRequest.of(page, 10);
+            Iterable<EmpresaDTO> response = this.empresaService.getEmpresasWithTransferencesByLastMonths(pageable);
+
             if (response == null || !response.iterator().hasNext()) {
                 return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
             }

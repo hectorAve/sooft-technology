@@ -6,6 +6,8 @@ import com.soft.technology.transactions_management.infrastructure.entity.Empresa
 import lombok.extern.log4j.Log4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.Calendar;
@@ -27,12 +29,13 @@ public class EmpresaRepositoryH2 implements EmpresaRepository {
     }
 
     @Override
-    public Iterable<EmpresaDTO> getEmpresasByLastMonthsOfAdherence() {
+    public Iterable<EmpresaDTO> getEmpresasByLastMonthsOfAdherence(Pageable pageable) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
         cal.set(Calendar.DAY_OF_MONTH, 1);
 
-        Iterable<EmpresaEntity> listEmpresas = this.empresaCrudRepository.findByFechaAdhesionAfter(cal.getTime());;
+        Page<EmpresaEntity> listEmpresas = this.empresaCrudRepository.findByFechaAdhesionAfter(cal.getTime(), pageable);
+
         return StreamSupport.stream(listEmpresas.spliterator(), false)
                 .map(empresa ->
                         modelMapper.map(empresa, EmpresaDTO.class))
@@ -40,8 +43,8 @@ public class EmpresaRepositoryH2 implements EmpresaRepository {
     }
 
     @Override
-    public Iterable<EmpresaDTO> findByCuitContaining(List<Long> cuitEmpresas) {
-        Iterable<EmpresaEntity> listEmpresas = empresaCrudRepository.findByCuitContaining(cuitEmpresas);
+    public Iterable<EmpresaDTO> findByCuitContaining(List<Long> cuitEmpresas, Pageable pageable) {
+        Page<EmpresaEntity> listEmpresas = empresaCrudRepository.findByCuitContaining(cuitEmpresas, pageable);
 
         return StreamSupport.stream(listEmpresas.spliterator(), false)
                 .map(empresa ->
@@ -54,5 +57,10 @@ public class EmpresaRepositoryH2 implements EmpresaRepository {
         EmpresaEntity empresa = modelMapper.map(empresaDTO, EmpresaEntity.class);
 
         return modelMapper.map(empresaCrudRepository.save(empresa), EmpresaDTO.class);
+    }
+
+    @Override
+    public Boolean findByCuit(Long cuit) {
+        return empresaCrudRepository.existsByCuit(cuit);
     }
 }

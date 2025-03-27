@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
@@ -23,34 +25,36 @@ class EmpresaRepositoryH2Test {
     @Autowired
     private EmpresaRepository empresaRepository;
 
+    final static Pageable pageable = PageRequest.of(0, 10);
+
     @Test
     void when_repository_lastmonth_adherence_returns_then_return_success() {
-        EmpresaDTO empresa = new EmpresaDTO(1234L, "SUPER", new Date());
+        EmpresaDTO empresa = new EmpresaDTO(10261119997L, "SUPER", new Date());
         empresaRepository.addEmpresa(empresa);
 
-        Iterable<EmpresaDTO> listEmpresas = empresaRepository.getEmpresasByLastMonthsOfAdherence();
+        Iterable<EmpresaDTO> listEmpresas = empresaRepository.getEmpresasByLastMonthsOfAdherence(pageable);
 
         assertThat(listEmpresas).hasSize(3);
-        assertThat(listEmpresas.iterator().next().getCuit()).isEqualTo(1234L);
+        assertThat(listEmpresas.iterator().next().getCuit()).isEqualTo(10261119997L);
         Assert.assertNotNull(listEmpresas.iterator().next());
     }
 
     @Test
     void when_repository_find_cuit_then_return_success() {
-        EmpresaDTO empresa = new EmpresaDTO(1234L, "SUPER", new Date());
-        List<Long> cuitsEmpresas = Arrays.asList(1234L);
+        EmpresaDTO empresa = new EmpresaDTO(10261119997L, "SUPER", new Date());
+        List<Long> cuitsEmpresas = Arrays.asList(10261119997L);
         empresaRepository.addEmpresa(empresa);
 
-        Iterable<EmpresaDTO> listEmpresas = empresaRepository.findByCuitContaining(cuitsEmpresas);
+        Iterable<EmpresaDTO> listEmpresas = empresaRepository.findByCuitContaining(cuitsEmpresas, pageable);
 
         assertThat(listEmpresas).hasSize(1);
-        assertThat(listEmpresas.iterator().next().getCuit()).isEqualTo(1234L);
+        assertThat(listEmpresas.iterator().next().getCuit()).isEqualTo(10261119997L);
         Assert.assertNotNull(listEmpresas.iterator().next());
     }
 
     @Test
     void when_repository_save_empresa_then_return_success() {
-        EmpresaDTO empresaExpected = new EmpresaDTO(1234L, "SUPER", new Date());
+        EmpresaDTO empresaExpected = new EmpresaDTO(10261119997L, "SUPER", new Date());
 
         EmpresaDTO empresaActual = empresaRepository.addEmpresa(empresaExpected);
 
