@@ -7,6 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,29 +17,32 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
-class DomainEmpresaServiceTest {
+class EmpresaServiceImplTest {
 
     @Mock
     EmpresaRepository empresaRepository;
 
     @Mock
-    TransacionesService transacionesService;
+    TransaccionesService transaccionesService;
 
     @InjectMocks
-    DomainEmpresaService domainEmpresaService;
+    EmpresaServiceImpl empresaServiceImpl;
+
+    final static Pageable pageable = PageRequest.of(0, 10);
 
     @Test
     void when_repository_lastmonth_adherence_returns_ERROR_then_return_exception() {
         RuntimeException re = new RuntimeException();
         doThrow(re)
                 .when(empresaRepository)
-                .getEmpresasByLastMonthsOfAdherence();
+                .getEmpresasByLastMonthsOfAdherence(any());
 
-        assertThatCode(() -> domainEmpresaService.getEmpresasByLastMonthsOfAdherence())
+        assertThatCode(() -> empresaServiceImpl.getEmpresasByLastMonthsOfAdherence(any()))
                 .isEqualTo(re);
     }
 
@@ -48,9 +53,9 @@ class DomainEmpresaServiceTest {
 
         doReturn(listEmpresasExpected)
                 .when(empresaRepository)
-                .getEmpresasByLastMonthsOfAdherence();
+                .getEmpresasByLastMonthsOfAdherence(pageable);
 
-        Iterable<EmpresaDTO> listEmpresasActual = domainEmpresaService.getEmpresasByLastMonthsOfAdherence();
+        Iterable<EmpresaDTO> listEmpresasActual = empresaServiceImpl.getEmpresasByLastMonthsOfAdherence(pageable);
 
         assertThat(listEmpresasActual).isEqualTo(listEmpresasExpected);
     }
@@ -59,10 +64,10 @@ class DomainEmpresaServiceTest {
     void when_repository_transferences_lastmonth_returns_ERROR_then_return_exception() {
         RuntimeException re = new RuntimeException();
         doThrow(re)
-                .when(transacionesService)
+                .when(transaccionesService)
                 .getEmpresasWithTransferencesByLastMonths();
 
-        assertThatCode(() -> domainEmpresaService.getEmpresasWithTransferencesByLastMonths())
+        assertThatCode(() -> empresaServiceImpl.getEmpresasWithTransferencesByLastMonths(pageable))
                 .isEqualTo(re);
     }
 
@@ -74,13 +79,13 @@ class DomainEmpresaServiceTest {
         List<Long> cuitsEmpresas = Arrays.asList(1234L, 5678L);
 
         doReturn(cuitsEmpresas)
-                .when(transacionesService)
+                .when(transaccionesService)
                 .getEmpresasWithTransferencesByLastMonths();
         doReturn(listEmpresasExpected)
                 .when(empresaRepository)
-                .findByCuitContaining(cuitsEmpresas);
+                .findByCuitContaining(cuitsEmpresas, pageable);
 
-        Iterable<EmpresaDTO> listEmpresasActual = domainEmpresaService.getEmpresasWithTransferencesByLastMonths();
+        Iterable<EmpresaDTO> listEmpresasActual = empresaServiceImpl.getEmpresasWithTransferencesByLastMonths(pageable);
 
         assertThat(listEmpresasActual).isEqualTo(listEmpresasExpected);
     }
@@ -93,7 +98,7 @@ class DomainEmpresaServiceTest {
                 .when(empresaRepository)
                 .addEmpresa(empresa);
 
-        assertThatCode(() -> domainEmpresaService.addEmpresa(empresa))
+        assertThatCode(() -> empresaServiceImpl.addEmpresa(empresa))
                 .isEqualTo(re);
     }
 
@@ -105,7 +110,7 @@ class DomainEmpresaServiceTest {
                 .when(empresaRepository)
                 .addEmpresa(empresaExpected);
 
-        EmpresaDTO empresasActual = domainEmpresaService.addEmpresa(empresaExpected);
+        EmpresaDTO empresasActual = empresaServiceImpl.addEmpresa(empresaExpected);
 
         assertThat(empresasActual).isEqualTo(empresaExpected);
     }

@@ -4,10 +4,10 @@ import com.soft.technology.transactions_management.domain.port.TransaccionesRepo
 
 import java.util.List;
 
-public class DomainTransaccionesService implements TransacionesService {
+public class TransaccionesServiceImpl implements TransaccionesService {
     private final TransaccionesRepository transaccionesRepository;
 
-    public DomainTransaccionesService(TransaccionesRepository transaccionesRepository) {
+    public TransaccionesServiceImpl(TransaccionesRepository transaccionesRepository) {
         this.transaccionesRepository = transaccionesRepository;
     }
 

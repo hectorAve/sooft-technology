@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -16,6 +18,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.Collections;
 import java.util.Date;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -33,6 +36,8 @@ class EmpresaControllerTest {
 
     private MockMvc mockMvc;
 
+    final static Pageable pageable = PageRequest.of(0, 10);
+
     @BeforeEach
     void setUpForEachTest() {
         mockMvc = MockMvcBuilders
@@ -45,7 +50,7 @@ class EmpresaControllerTest {
         RuntimeException re = new RuntimeException();
         doThrow(re)
                 .when(empresaService)
-                .getEmpresasByLastMonthsOfAdherence();
+                .getEmpresasByLastMonthsOfAdherence(any());
 
         mockMvc.perform(get(PATH+"/lastmonth"))
                 .andExpect(status().isInternalServerError());
@@ -57,7 +62,7 @@ class EmpresaControllerTest {
 
         doReturn(listEmpty)
                 .when(empresaService)
-                .getEmpresasByLastMonthsOfAdherence();
+                .getEmpresasByLastMonthsOfAdherence(pageable);
 
         mockMvc.perform(get(PATH+"/lastmonth"))
                 .andExpect(status().isNoContent());
@@ -71,7 +76,7 @@ class EmpresaControllerTest {
 
         doReturn(listEmpresas)
                 .when(empresaService)
-                .getEmpresasByLastMonthsOfAdherence();
+                .getEmpresasByLastMonthsOfAdherence(pageable);
 
         mockMvc.perform(get(PATH+"/lastmonth"))
                 .andExpect(status().isOk());
@@ -82,7 +87,7 @@ class EmpresaControllerTest {
         RuntimeException re = new RuntimeException();
         doThrow(re)
                 .when(empresaService)
-                .getEmpresasWithTransferencesByLastMonths();
+                .getEmpresasWithTransferencesByLastMonths(any());
 
         mockMvc.perform(get(PATH+"/transference/lastmonth"))
                 .andExpect(status().isInternalServerError());
@@ -94,7 +99,7 @@ class EmpresaControllerTest {
 
         doReturn(listEmpty)
                 .when(empresaService)
-                .getEmpresasWithTransferencesByLastMonths();
+                .getEmpresasWithTransferencesByLastMonths(any());
 
         mockMvc.perform(get(PATH+"/transference/lastmonth"))
                 .andExpect(status().isNoContent());
@@ -108,7 +113,7 @@ class EmpresaControllerTest {
 
         doReturn(listEmpresas)
                 .when(empresaService)
-                .getEmpresasWithTransferencesByLastMonths();
+                .getEmpresasWithTransferencesByLastMonths(pageable);
 
         mockMvc.perform(get(PATH+"/transference/lastmonth"))
                 .andExpect(status().isOk());
@@ -116,7 +121,7 @@ class EmpresaControllerTest {
 
     @Test
     void when_service_create_empresa_returns_ERROR_then_internalServerError() throws Exception {
-        EmpresaDTO empresa = new EmpresaDTO(1234L, "SUPER", new Date());
+        EmpresaDTO empresa = new EmpresaDTO(1000001L, "SUPER", new Date());
 
         RuntimeException re = new RuntimeException();
         doThrow(re)
@@ -130,8 +135,38 @@ class EmpresaControllerTest {
     }
 
     @Test
+    void when_service_create_empresa_with_not_contains_cuit_then_badRequest() throws Exception {
+        EmpresaDTO empresa = new EmpresaDTO(null, "SUPER", new Date());
+
+        mockMvc.perform(post(PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(empresa)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void when_service_create_empresa_with_not_contains_razonSocial_then_badRequest() throws Exception {
+        EmpresaDTO empresa = new EmpresaDTO(1000001L, "", new Date());
+
+        mockMvc.perform(post(PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(empresa)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void when_service_create_empresa_with_not_contains_fechaAdhesion_then_badRequest() throws Exception {
+        EmpresaDTO empresa = new EmpresaDTO(1000001L, "SUPER", null);
+
+        mockMvc.perform(post(PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(empresa)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void when_service_create_empresa_returns_success_statusCreated() throws Exception {
-        EmpresaDTO empresa = new EmpresaDTO(1234L, "SUPER", new Date());
+        EmpresaDTO empresa = new EmpresaDTO(1000001L, "SUPER", new Date());
 
         doReturn(empresa)
                 .when(empresaService)

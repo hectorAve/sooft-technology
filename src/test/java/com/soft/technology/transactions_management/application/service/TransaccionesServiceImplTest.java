@@ -16,13 +16,13 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
-class DomainTransaccionesServiceTest {
+class TransaccionesServiceImplTest {
 
     @Mock
     private TransaccionesRepository transaccionesRepository;
 
     @InjectMocks
-    private DomainTransaccionesService domainTransaccionesService;
+    private TransaccionesServiceImpl domainTransaccionesService;
 
     @Test
     void when_repository_transferences_lastmonth_returns_ERROR_then_return_exception() {
